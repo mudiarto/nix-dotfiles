@@ -27,7 +27,14 @@
       EDITOR = "nvim";
       VISUAL = "nvim";
       SHELL = "${pkgs.zsh}/bin/zsh";
+      # npm configuration for global packages
+      NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
     };
+
+    # Add npm global bin to PATH
+    sessionPath = [
+      "${config.home.homeDirectory}/.npm-global/bin"
+    ];
 
     # Packages to install
     packages = with pkgs; [
@@ -395,6 +402,12 @@
 
         # Use compression
         --compressed
+      '';
+
+      # npm configuration - use user-local directory for global packages
+      # This prevents permission issues with Nix's read-only store
+      ".npmrc".text = ''
+        prefix=''${HOME}/.npm-global
       '';
 
       # Wget configuration

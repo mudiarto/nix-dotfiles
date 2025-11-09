@@ -85,7 +85,25 @@ nix run home-manager/master -- switch --flake .#user@linux -b backup
 # Install Claude Code via npm (if not available in nixpkgs)
 echo "🤖 Installing Claude Code..."
 if command -v npm &> /dev/null; then
-    npm install -g @anthropic-ai/claude-code || echo "⚠️  Claude Code installation failed, you can install it later"
+    # Configure npm to use user-local directory for global packages
+    # This is necessary because Nix Node.js can't write to /nix/store
+    mkdir -p ~/.npm-global
+    npm config set prefix ~/.npm-global
+
+    # Add npm global bin to PATH for future shells
+    if [ -f ~/.bashrc ]; then
+        if ! grep -q "npm-global/bin" ~/.bashrc; then
+            echo "" >> ~/.bashrc
+            echo "# Add npm global packages to PATH" >> ~/.bashrc
+            echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
+        fi
+    fi
+
+    # Add to current PATH for this session
+    export PATH="$HOME/.npm-global/bin:$PATH"
+
+    # Install Claude Code
+    npm install -g @anthropic-ai/claude-code || echo "⚠️  Claude Code installation failed, you can install it later with: npm install -g @anthropic-ai/claude-code"
 else
     echo "⚠️  npm not found, Claude Code installation skipped"
     echo "   You can install it manually later with: npm install -g @anthropic-ai/claude-code"
