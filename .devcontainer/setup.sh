@@ -87,6 +87,16 @@ echo "🤖 Installing Claude Code..."
 if command -v npm &> /dev/null; then
     # Configure npm to use user-local directory for global packages
     # This is necessary because Nix Node.js can't write to /nix/store
+
+    # Fix ownership of npm files if they exist and are owned by root
+    if [ -d ~/.npm ]; then
+        echo "  Fixing npm cache ownership..."
+        sudo chown -R $(id -u):$(id -g) ~/.npm || true
+    fi
+    if [ -f ~/.npmrc ]; then
+        sudo chown $(id -u):$(id -g) ~/.npmrc || true
+    fi
+
     mkdir -p ~/.npm-global
     npm config set prefix ~/.npm-global
 
