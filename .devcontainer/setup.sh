@@ -4,16 +4,22 @@ set -e
 
 echo "🚀 Setting up Nix + Home Manager environment..."
 
-# Enable experimental features
-mkdir -p ~/.config/nix
-cat > ~/.config/nix/nix.conf <<EOF
-experimental-features = nix-command flakes
-EOF
+# Install Determinate Nix if not already installed
+if ! command -v nix &> /dev/null; then
+    echo "📦 Installing Determinate Nix..."
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
+        --init none \
+        --no-confirm
 
-# Update channels
-echo "📦 Updating Nix channels..."
-nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
-nix-channel --update
+    # Source the nix environment for current session
+    if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    fi
+else
+    echo "✓ Nix is already installed"
+fi
+
+# Note: Determinate Nix comes with flakes enabled by default, no additional configuration needed!
 
 # Install Home Manager
 echo "🏠 Installing Home Manager..."

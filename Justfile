@@ -88,11 +88,9 @@ test CONFIG="user@linux":
 
 # Bootstrap on a new machine (Linux)
 bootstrap-linux:
-    @echo "Installing Nix..."
-    sh <(curl -L https://nixos.org/nix/install) --daemon
-    @echo "Enabling flakes..."
-    mkdir -p ~/.config/nix
-    echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+    @echo "Installing Determinate Nix..."
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+    @echo "Note: Determinate Nix enables flakes by default!"
     @echo "Applying configuration..."
     nix run home-manager -- switch --flake .#user@linux
     @echo "Installing pre-commit hooks..."
@@ -101,11 +99,9 @@ bootstrap-linux:
 
 # Bootstrap on a new machine (macOS)
 bootstrap-darwin:
-    @echo "Installing Nix..."
-    sh <(curl -L https://nixos.org/nix/install)
-    @echo "Enabling flakes..."
-    mkdir -p ~/.config/nix
-    echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+    @echo "Installing Determinate Nix..."
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+    @echo "Note: Determinate Nix enables flakes by default!"
     @echo "Please run 'just apply-darwin-x86' or 'just apply-darwin-arm' based on your Mac"
     @echo "Then run 'just install-hooks'"
 

@@ -2,6 +2,12 @@
 
 This repository uses Nix + Home Manager to provide a consistent development environment across multiple platforms (macOS, Linux, GitHub Codespaces, and cloud environments).
 
+**Note:** This repository uses **Determinate Nix** (from Determinate Systems) instead of the standard Nix installer. Determinate Nix provides:
+- Flakes and nix-command enabled by default
+- Better installation and uninstallation experience
+- Improved error messages and diagnostics
+- Consistent behavior across platforms
+
 ## Repository Overview
 
 This is a dotfiles repository that manages:
@@ -137,6 +143,7 @@ pre-commit clean
 
 ## Getting Help
 
+- Determinate Nix: https://github.com/DeterminateSystems/nix-installer
 - Nix documentation: https://nixos.org/manual/nix/stable/
 - Home Manager manual: https://nix-community.github.io/home-manager/
 - Home Manager options: https://mipmip.github.io/home-manager-option-search/

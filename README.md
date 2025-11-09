@@ -9,6 +9,7 @@ A cross-platform development environment configuration using Nix and Home Manage
 - **Reproducible**: Same environment everywhere, every time
 - **Secure**: Pre-commit hooks to prevent committing secrets
 - **Comprehensive**: Includes shell (Zsh), editor (Neovim), multiplexer (Tmux), and many dev tools
+- **Determinate Nix**: Uses Determinate Systems' Nix installer for better UX, flakes enabled by default, and easier uninstallation
 
 ## What's Included
 
@@ -54,18 +55,14 @@ A cross-platform development environment configuration using Nix and Home Manage
 
 ### macOS
 
-1. **Install Nix**:
+1. **Install Determinate Nix**:
    ```bash
-   sh <(curl -L https://nixos.org/nix/install)
+   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
    ```
 
-2. **Enable Nix Flakes**:
-   ```bash
-   mkdir -p ~/.config/nix
-   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-   ```
+   Note: Determinate Nix comes with flakes enabled by default, so no additional configuration needed!
 
-3. **Clone and Apply**:
+2. **Clone and Apply**:
    ```bash
    git clone <your-repo-url> ~/nix-dotfiles
    cd ~/nix-dotfiles
@@ -77,37 +74,33 @@ A cross-platform development environment configuration using Nix and Home Manage
    nix run home-manager -- switch --flake .#user@darwin-arm
    ```
 
-4. **Set up pre-commit hooks**:
+3. **Set up pre-commit hooks**:
    ```bash
    pre-commit install
    ```
 
 ### Linux
 
-1. **Install Nix**:
+1. **Install Determinate Nix**:
    ```bash
-   sh <(curl -L https://nixos.org/nix/install) --daemon
+   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
    ```
 
-2. **Enable Nix Flakes**:
-   ```bash
-   mkdir -p ~/.config/nix
-   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-   ```
+   Note: Determinate Nix comes with flakes enabled by default and installs in multi-user mode automatically!
 
-3. **Clone and Apply**:
+2. **Clone and Apply**:
    ```bash
    git clone <your-repo-url> ~/nix-dotfiles
    cd ~/nix-dotfiles
    nix run home-manager -- switch --flake .#user@linux
    ```
 
-4. **Set up pre-commit hooks**:
+3. **Set up pre-commit hooks**:
    ```bash
    pre-commit install
    ```
 
-5. **Change default shell to Zsh** (optional):
+4. **Change default shell to Zsh** (optional):
    ```bash
    chsh -s $(which zsh)
    ```
@@ -287,8 +280,15 @@ Run manually to see detailed errors:
 pre-commit run --all-files --verbose
 ```
 
+### Uninstalling Nix
+If you need to uninstall Determinate Nix:
+```bash
+/nix/nix-installer uninstall
+```
+
 ## Resources
 
+- [Determinate Systems - Nix Installer](https://github.com/DeterminateSystems/nix-installer)
 - [Nix Manual](https://nixos.org/manual/nix/stable/)
 - [Home Manager Manual](https://nix-community.github.io/home-manager/)
 - [Home Manager Options Search](https://mipmip.github.io/home-manager-option-search/)
