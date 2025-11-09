@@ -22,9 +22,15 @@ This is a dotfiles repository that manages:
 .
 ├── flake.nix                  # Nix flake configuration (entry point)
 ├── home.nix                   # Home Manager configuration (main config)
+├── Justfile                   # Command runner with helpful tasks
 ├── .devcontainer/             # GitHub Codespaces configuration
 │   ├── devcontainer.json      # Devcontainer settings
 │   └── setup.sh               # Post-create setup script
+├── cloud/                     # Cloud VM deployment configs
+│   ├── cloud-init.yaml        # Cloud-init configuration
+│   └── setup-vm.sh            # Manual VM setup script
+├── Dockerfile                 # Docker image for containerized env
+├── docker-compose.yml         # Docker Compose configuration
 ├── .pre-commit-config.yaml    # Pre-commit hooks for security
 ├── .gitignore                 # Git ignore patterns (includes secrets)
 ├── CLAUDE.md                  # This file
@@ -50,6 +56,32 @@ This is a dotfiles repository that manages:
 - Git-secrets integration
 - Comprehensive .gitignore for sensitive files
 - Automatic checks before commits
+
+### Deployment Options
+
+This repository supports multiple deployment methods:
+
+**1. GitHub Codespaces** (`.devcontainer/`)
+- Automatic setup via devcontainer.json
+- Uses Debian base image with Determinate Nix
+- Post-create script handles Home Manager installation
+
+**2. Docker** (`Dockerfile`, `docker-compose.yml`)
+- Containerized environment for testing or local development
+- Persistent volumes for Nix store and home data
+- Useful when you can't install Nix directly
+- Commands: `just docker-build`, `just docker-up`, `just docker-shell`
+
+**3. Cloud VMs** (`cloud/`)
+- **cloud-init.yaml**: Automated setup for AWS, GCP, Azure, DigitalOcean
+- **setup-vm.sh**: Manual setup script for existing VMs
+- Supports all major cloud providers
+- Use with terraform, ansible, or manual provisioning
+
+**4. Local Installation**
+- Direct installation via Determinate Nix
+- Platform-specific configurations (Linux, macOS Intel, macOS ARM)
+- Commands: `just bootstrap-linux`, `just bootstrap-darwin`
 
 ## Common Tasks
 
@@ -159,13 +191,26 @@ When working on this repository:
 5. **Incremental changes**: Test one change at a time, especially for complex configurations
 6. **Use Nix search**: Search for packages at https://search.nixos.org/packages
 7. **Check compatibility**: Some packages may not work on all platforms
+8. **Docker testing**: Use `just docker-build` and `just docker-up` to test changes in isolation
+9. **Cloud deployment**: Remember to update cloud/cloud-init.yaml when making significant changes
+
+### Working with Docker
+- Test Dockerfile builds after modifying dependencies
+- Update docker-compose.yml resource limits based on requirements
+- Ensure volumes are properly configured for persistence
+
+### Working with Cloud Deployments
+- Test cloud-init.yaml syntax with `cloud-init devel schema -c cloud/cloud-init.yaml`
+- Remember to update setup-vm.sh when changing the installation process
+- Consider cloud provider differences (systemd vs init)
 
 ## Current Limitations
 
 - Claude Code is installed via npm (not yet available in nixpkgs)
-- Docker requires platform-specific setup
+- Docker build can be slow on first run (downloads Nix packages)
 - Some GUI applications may need additional configuration on different platforms
 - First-time setup can be slow due to package downloads
+- Cloud-init requires editing before use (SSH keys, repo URL)
 
 ## Future Enhancements
 

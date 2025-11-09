@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  devenv:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USERNAME: developer
+        USER_UID: 1000
+        USER_GID: 1000
+    image: nix-dotfiles:latest
+    container_name: nix-devenv
+
+    # Keep container running
+    stdin_open: true
+    tty: true
+
+    # Mount workspace
+    volumes:
+      - .:/workspace:cached
+      - nix-store:/nix
+      - home-data:/home/developer
+
+    # Working directory
+    working_dir: /workspace
+
+    # Environment variables
+    environment:
+      - TERM=xterm-256color
+
+    # Network mode
+    network_mode: bridge
+
+    # Resource limits (adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+volumes:
+  nix-store:
+    driver: local
+  home-data:
+    driver: local

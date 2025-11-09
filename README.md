@@ -105,6 +105,130 @@ A cross-platform development environment configuration using Nix and Home Manage
    chsh -s $(which zsh)
    ```
 
+### Docker
+
+Perfect for isolated testing or when you can't install Nix directly on your system.
+
+1. **Using Docker Compose** (Recommended):
+   ```bash
+   # Clone the repository
+   git clone <your-repo-url> nix-dotfiles
+   cd nix-dotfiles
+
+   # Build and start the container
+   docker-compose up -d
+
+   # Access the environment
+   docker-compose exec devenv zsh
+
+   # Work inside the container with all tools configured!
+   ```
+
+2. **Using Dockerfile directly**:
+   ```bash
+   # Build the image
+   docker build -t nix-dotfiles .
+
+   # Run interactively
+   docker run -it --rm \
+     -v $(pwd):/workspace \
+     nix-dotfiles
+
+   # Or run with persistent storage
+   docker run -it --rm \
+     -v $(pwd):/workspace \
+     -v nix-store:/nix \
+     -v home-data:/home/developer \
+     nix-dotfiles
+   ```
+
+3. **Stop and cleanup**:
+   ```bash
+   docker-compose down
+   # To also remove volumes:
+   docker-compose down -v
+   ```
+
+### Cloud VMs / VPC (AWS, GCP, Azure, DigitalOcean)
+
+Deploy to cloud VMs for consistent development environments in the cloud.
+
+#### Option 1: Cloud-init (Automated)
+
+Use the cloud-init configuration for automated setup when launching VMs:
+
+```bash
+# AWS EC2
+aws ec2 run-instances \
+  --image-id ami-xxxxx \
+  --instance-type t3.medium \
+  --user-data file://cloud/cloud-init.yaml
+
+# GCP Compute Engine
+gcloud compute instances create my-devenv \
+  --image-family=debian-11 \
+  --metadata-from-file=user-data=cloud/cloud-init.yaml
+
+# Azure VM
+az vm create \
+  --name my-devenv \
+  --image Debian11 \
+  --custom-data cloud/cloud-init.yaml
+```
+
+**Important**: Edit `cloud/cloud-init.yaml` first:
+- Add your SSH public key
+- Update the repository URL
+- Customize the username if needed
+
+#### Option 2: Manual Setup Script
+
+For existing VMs or manual setup:
+
+```bash
+# SSH into your VM
+ssh user@your-vm-ip
+
+# Download and run the setup script
+curl -sSfL https://raw.githubusercontent.com/YOUR_USERNAME/nix-dotfiles/main/cloud/setup-vm.sh | bash
+
+# Or clone and run locally
+git clone <your-repo-url> ~/nix-dotfiles
+cd ~/nix-dotfiles
+./cloud/setup-vm.sh
+```
+
+#### Option 3: Quick One-liner
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install && \
+git clone <your-repo-url> ~/nix-dotfiles && \
+cd ~/nix-dotfiles && \
+nix run home-manager -- switch --flake .#user@linux
+```
+
+#### Cloud Provider Examples
+
+**AWS EC2**:
+- Use Amazon Linux 2023, Ubuntu, or Debian AMI
+- Instance type: t3.medium or larger recommended
+- Security group: Allow SSH (port 22)
+
+**GCP Compute Engine**:
+- Use Debian 11 or Ubuntu image
+- Machine type: e2-medium or larger
+- Allow SSH in firewall rules
+
+**Azure Virtual Machines**:
+- Use Ubuntu Server or Debian image
+- Size: Standard_B2s or larger
+- Allow SSH (port 22) in NSG
+
+**DigitalOcean Droplets**:
+- Use Ubuntu or Debian image
+- Size: 2GB RAM minimum
+- Add your SSH key during creation
+
 ## Initial Configuration
 
 Before using, customize these settings in `home.nix`:
@@ -204,9 +328,15 @@ home-manager generations
 .
 ├── flake.nix                   # Nix flake configuration
 ├── home.nix                    # Home Manager configuration
+├── Justfile                    # Command runner with helpful tasks
 ├── .devcontainer/              # GitHub Codespaces setup
 │   ├── devcontainer.json
 │   └── setup.sh
+├── cloud/                      # Cloud VM deployment configs
+│   ├── cloud-init.yaml         # Cloud-init configuration
+│   └── setup-vm.sh             # Manual VM setup script
+├── Dockerfile                  # Docker image for containerized env
+├── docker-compose.yml          # Docker Compose configuration
 ├── .pre-commit-config.yaml     # Pre-commit hooks
 ├── .gitignore                  # Git ignore patterns
 ├── CLAUDE.md                   # Documentation for Claude AI

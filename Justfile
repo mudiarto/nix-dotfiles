@@ -105,6 +105,68 @@ bootstrap-darwin:
     @echo "Please run 'just apply-darwin-x86' or 'just apply-darwin-arm' based on your Mac"
     @echo "Then run 'just install-hooks'"
 
+# Docker commands
+
+# Build Docker image
+docker-build:
+    @echo "🐳 Building Docker image..."
+    docker build -t nix-dotfiles:latest .
+
+# Run Docker container interactively
+docker-run:
+    @echo "🐳 Running Docker container..."
+    docker run -it --rm \
+        -v $(pwd):/workspace \
+        -v nix-store:/nix \
+        -v home-data:/home/developer \
+        nix-dotfiles:latest
+
+# Start with Docker Compose
+docker-up:
+    @echo "🐳 Starting Docker Compose environment..."
+    docker-compose up -d
+    @echo "✅ Environment started! Access with: docker-compose exec devenv zsh"
+
+# Stop Docker Compose
+docker-down:
+    @echo "🐳 Stopping Docker Compose environment..."
+    docker-compose down
+
+# Access running Docker Compose container
+docker-shell:
+    @echo "🐳 Accessing container shell..."
+    docker-compose exec devenv zsh
+
+# Show Docker container logs
+docker-logs:
+    docker-compose logs -f
+
+# Clean Docker resources
+docker-clean:
+    @echo "🧹 Cleaning Docker resources..."
+    docker-compose down -v
+    docker rmi nix-dotfiles:latest || true
+    @echo "✅ Docker cleanup complete!"
+
+# Cloud VM commands
+
+# Display cloud setup instructions
+cloud-info:
+    @echo "☁️  Cloud VM Setup Options:"
+    @echo ""
+    @echo "1. Automated (cloud-init):"
+    @echo "   - Edit cloud/cloud-init.yaml with your SSH key and repo URL"
+    @echo "   - Use as user-data when launching VM (AWS/GCP/Azure)"
+    @echo ""
+    @echo "2. Manual setup script:"
+    @echo "   - SSH into your VM"
+    @echo "   - Run: curl -sSfL <repo-url>/cloud/setup-vm.sh | bash"
+    @echo ""
+    @echo "3. Quick one-liner:"
+    @echo "   - See README.md for the complete command"
+    @echo ""
+    @echo "Supported platforms: AWS EC2, GCP, Azure, DigitalOcean, Linode, etc."
+
 # Show documentation
 docs:
     @echo "📚 Documentation Files:"
