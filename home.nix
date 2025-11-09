@@ -157,10 +157,18 @@
       enable = true;
 
       settings = {
-        user = {
-          name = "Kusno Mudiarto";  # TODO: Customize this
-          email = "kusno@mudiarto.com";  # TODO: Customize this
-        };
+        user =
+          # Read from environment variables set in .envrc.local
+          # Set these in .envrc.local:
+          #   export GIT_USER_NAME="Your Name"
+          #   export GIT_USER_EMAIL="your@email.com"
+          let
+            envName = builtins.getEnv "GIT_USER_NAME";
+            envEmail = builtins.getEnv "GIT_USER_EMAIL";
+          in {
+            name = if envName != "" then envName else "CHANGEME";
+            email = if envEmail != "" then envEmail else "changeme@example.com";
+          };
 
         alias = {
           st = "status";

@@ -4,6 +4,22 @@
 # .envrc.local is in .gitignore and safe for secrets
 
 # ============================================================================
+# Git Configuration (required for home-manager)
+# ============================================================================
+
+# Git user configuration - used by home.nix
+export GIT_USER_NAME="Your Name"
+export GIT_USER_EMAIL="your@email.com"
+
+# ============================================================================
+# SSH Configuration (optional)
+# ============================================================================
+
+# If you have SSH keys in a non-standard location, set the path here
+# export SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
+# export SSH_PUBLIC_KEY_PATH="$HOME/.ssh/id_ed25519.pub"
+
+# ============================================================================
 # Global Secrets (used across all projects)
 # ============================================================================
 

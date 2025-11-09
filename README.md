@@ -231,20 +231,42 @@ nix run home-manager -- switch --flake .#user@linux
 
 ## Initial Configuration
 
-Before using, customize these settings in `home.nix`:
+### 1. Set Up Your Credentials (Required)
 
-1. **Git configuration**:
-   ```nix
-   git = {
-     userName = "Your Name";      # Change this!
-     userEmail = "your@email.com"; # Change this!
-   };
-   ```
+Your git credentials are loaded from `.envrc.local` (which is gitignored for security):
 
-2. Review and adjust:
-   - Shell aliases
-   - Neovim configuration
-   - Tmux keybindings
+```bash
+# Copy the example file
+cp .envrc.local.example .envrc.local
+
+# Edit .envrc.local and set your credentials
+# Required:
+export GIT_USER_NAME="Your Name"
+export GIT_USER_EMAIL="your@email.com"
+
+# Optional: Add API keys and other secrets
+export GITHUB_TOKEN="ghp_..."
+export OPENAI_API_KEY="sk-..."
+
+# Allow direnv to load the environment
+direnv allow
+
+# Reapply Home Manager with your credentials
+home-manager switch --flake .#<your-config>
+```
+
+**Why use `.envrc.local`?**
+- Keeps secrets out of git (`.envrc.local` is gitignored)
+- Same approach works for API keys, tokens, and other sensitive data
+- Changes apply immediately with `direnv allow`
+
+### 2. Review and Customize
+
+You can also adjust these settings in `home.nix`:
+- Shell aliases
+- Neovim configuration
+- Tmux keybindings
+- Additional packages
 
 ## Usage
 
