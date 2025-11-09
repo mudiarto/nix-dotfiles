@@ -8,18 +8,45 @@ echo "🚀 Setting up Nix + Home Manager environment..."
 if ! command -v nix &> /dev/null; then
     echo "📦 Installing Determinate Nix..."
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
-        --init none \
         --no-confirm
+
+    # Start the Nix daemon
+    echo "🔧 Starting Nix daemon..."
+    if command -v systemctl &> /dev/null; then
+        sudo systemctl start nix-daemon.service || true
+        # Wait for daemon to be ready
+        sleep 2
+    fi
 
     # Source the nix environment for current session
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        set +e  # Temporarily disable exit on error
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        set -e
     fi
 else
     echo "✓ Nix is already installed"
+    # Make sure daemon is running
+    if command -v systemctl &> /dev/null; then
+        sudo systemctl start nix-daemon.service || true
+    fi
+    # Source the environment
+    if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        set +e
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        set -e
+    fi
 fi
 
 # Note: Determinate Nix comes with flakes enabled by default, no additional configuration needed!
+
+# Verify Nix is working
+echo "🔍 Verifying Nix installation..."
+if ! nix --version &> /dev/null; then
+    echo "❌ Nix is not available. Something went wrong with the installation."
+    exit 1
+fi
+echo "✓ Nix $(nix --version) is ready"
 
 # Install Home Manager
 echo "🏠 Installing Home Manager..."
