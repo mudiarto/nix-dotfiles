@@ -1,0 +1,97 @@
+# Nix build artifacts
+result
+result-*
+
+# Home Manager
+.hm-backup/
+
+# Secrets and sensitive data
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+*.env
+.env.local
+.env.*.local
+secrets/
+credentials/
+*.credentials
+
+# SSH keys
+id_rsa
+id_ed25519
+id_ecdsa
+*.pub
+
+# GPG keys
+*.gpg
+*.asc
+secring.*
+
+# API keys and tokens
+.token
+.api-key
+*.token
+*.apikey
+
+# AWS credentials
+.aws/credentials
+
+# Cloud provider configs with credentials
+gcloud/
+.azure/
+.kube/config
+
+# Password files
+.password
+*.password
+passwords.txt
+
+# Database dumps (may contain sensitive data)
+*.sql
+*.dump
+
+# Backup files
+*.bak
+*.backup
+*~
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Log files
+*.log
+logs/
+
+# Node modules (if using npm for any tools)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+venv/
+.venv/
+
+# Secrets baseline for detect-secrets
+.secrets.baseline
+
+# Custom ignore patterns
+# Add your own patterns below
