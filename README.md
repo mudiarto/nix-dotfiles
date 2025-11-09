@@ -495,6 +495,18 @@ If you need to uninstall Determinate Nix:
   - Troubleshooting tips
   - Learning resources
 
+- **[Managing Dotfiles](docs/managing-dotfiles.md)** - Guide to managing configuration files:
+  - Declarative configuration in home.nix (recommended)
+  - External files with symlinks
+  - Best practices and comparison
+  - Migration from traditional dotfiles
+
+- **[Managing Secrets](docs/managing-secrets.md)** - Secret management with direnv:
+  - Storing API keys and credentials securely
+  - Using .envrc for environment-specific secrets
+  - Best practices and security checklist
+  - Alternative solutions (sops-nix, 1Password, pass)
+
 ### External Resources
 
 - [Determinate Systems - Nix Installer](https://github.com/DeterminateSystems/nix-installer)
