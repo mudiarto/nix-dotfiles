@@ -8,49 +8,44 @@ echo "🚀 Setting up Nix + Home Manager environment..."
 if ! command -v nix &> /dev/null; then
     echo "📦 Installing Determinate Nix..."
 
-    # Check if systemd is running
-    if systemctl is-system-running &> /dev/null || [ -d /run/systemd/system ]; then
-        echo "  Using systemd for daemon management"
-        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
-            --no-confirm
-    else
-        echo "  systemd not active, installing without daemon auto-start"
-        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
-            --no-confirm \
-            --no-start-daemon
-    fi
-
-    # Start the Nix daemon if systemd is available
-    echo "🔧 Starting Nix daemon..."
-    if command -v systemctl &> /dev/null && systemctl is-system-running &> /dev/null; then
-        sudo systemctl start nix-daemon.service || true
-        # Wait for daemon to be ready
-        sleep 2
-    else
-        # Try to start daemon manually if systemd isn't available
-        if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-            sudo /nix/var/nix/profiles/default/bin/nix-daemon &
-            sleep 2
-        fi
-    fi
+    # In Codespaces/containers, systemd is often not fully active during postCreateCommand
+    # Use --init none to skip systemd setup and start daemon manually
+    echo "  Installing Nix without systemd integration (for container compatibility)"
+    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
+        --no-confirm \
+        --init none
 
     # Source the nix environment for current session
+    echo "🔧 Loading Nix environment..."
+    set +e  # Temporarily disable exit on error for sourcing
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-        set +e  # Temporarily disable exit on error
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-        set -e
+    fi
+    set -e
+
+    # Start the Nix daemon manually
+    echo "🔧 Starting Nix daemon..."
+    if [ -x /nix/var/nix/profiles/default/bin/nix-daemon ]; then
+        # Kill any existing daemon first
+        sudo pkill -f nix-daemon || true
+        # Start daemon in background
+        sudo -b /nix/var/nix/profiles/default/bin/nix-daemon
+        # Wait for daemon to be ready
+        sleep 3
     fi
 else
     echo "✓ Nix is already installed"
-    # Make sure daemon is running
-    if command -v systemctl &> /dev/null && systemctl is-system-running &> /dev/null; then
-        sudo systemctl start nix-daemon.service || true
-    fi
     # Source the environment
+    set +e
     if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
-        set +e
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-        set -e
+    fi
+    set -e
+    # Make sure daemon is running
+    if [ -x /nix/var/nix/profiles/default/bin/nix-daemon ]; then
+        sudo pkill -f nix-daemon || true
+        sudo -b /nix/var/nix/profiles/default/bin/nix-daemon
+        sleep 2
     fi
 fi
 
@@ -58,9 +53,26 @@ fi
 
 # Verify Nix is working
 echo "🔍 Verifying Nix installation..."
-if ! nix --version &> /dev/null; then
-    echo "❌ Nix is not available. Something went wrong with the installation."
-    exit 1
+# Source the environment again to ensure it's loaded
+set +e
+if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+set -e
+
+# Try to run nix with a timeout and better error handling
+if ! timeout 10 nix --version &> /dev/null; then
+    echo "❌ Nix is not responding. Attempting to restart daemon..."
+    sudo pkill -f nix-daemon || true
+    sleep 1
+    sudo -b /nix/var/nix/profiles/default/bin/nix-daemon
+    sleep 3
+
+    # Try one more time
+    if ! timeout 10 nix --version &> /dev/null; then
+        echo "❌ Nix installation failed. Please check the logs above."
+        exit 1
+    fi
 fi
 echo "✓ Nix $(nix --version) is ready"
 
@@ -94,4 +106,21 @@ if [ -f ~/.nix-profile/bin/zsh ]; then
     echo "Zsh installed successfully"
 fi
 
-echo "✅ Setup complete! Please restart your terminal or run 'source ~/.zshrc'"
+# Ensure Nix is available in future shells
+echo "🔧 Configuring shell environment..."
+# Add Nix environment to bashrc if not already there
+if [ -f ~/.bashrc ]; then
+    if ! grep -q "nix-daemon.sh" ~/.bashrc; then
+        echo "" >> ~/.bashrc
+        echo "# Load Nix environment" >> ~/.bashrc
+        echo "if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then" >> ~/.bashrc
+        echo "    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" >> ~/.bashrc
+        echo "fi" >> ~/.bashrc
+    fi
+fi
+
+echo "✅ Setup complete! Nix and Home Manager are ready."
+echo "   To start using Nix in this terminal, run:"
+echo "   source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+echo ""
+echo "   For new terminals, Nix will be available automatically."
