@@ -60,6 +60,8 @@
       rustc         # Rust compiler
       cargo         # Rust package manager
       go            # Go language
+      mise          # Polyglot runtime manager (asdf alternative)
+      uv            # Fast Python package installer
 
       # Nix tools
       nixpkgs-fmt   # Nix formatter
@@ -168,6 +170,32 @@
           syntax-theme = "Nord";
         };
       };
+
+      # Global gitignore
+      ignores = [
+        # OS files
+        ".DS_Store"
+        "Thumbs.db"
+        "desktop.ini"
+
+        # Editor files
+        ".vscode/"
+        ".idea/"
+        "*.swp"
+        "*.swo"
+        "*~"
+
+        # Temporary files
+        "*.tmp"
+        "*.log"
+        ".env.local"
+
+        # Common build artifacts
+        "node_modules/"
+        ".cache/"
+        "dist/"
+        "build/"
+      ];
     };
 
     # Neovim
@@ -301,11 +329,75 @@
     };
   };
 
-  # Platform-specific configurations
+  # Platform-specific configurations and custom dotfiles
   home.file = lib.mkMerge [
     # Common files for all platforms
     {
       ".config/justfile-templates/.keep".text = "";
+
+      # Example: Link external file from dotfiles/ directory
+      # Uncomment to use:
+      # ".custom_aliases".source = ./dotfiles/custom_aliases.sh;
+
+      # Example: Create file with recursive directory
+      # ".config/myapp/config.json".text = ''
+      #   { "setting": "value" }
+      # '';
+
+      # EditorConfig - define coding styles
+      ".editorconfig".text = ''
+        root = true
+
+        [*]
+        charset = utf-8
+        end_of_line = lf
+        insert_final_newline = true
+        trim_trailing_whitespace = true
+
+        [*.{js,jsx,ts,tsx,json,css,scss,yml,yaml}]
+        indent_style = space
+        indent_size = 2
+
+        [*.{py,rs,go}]
+        indent_style = space
+        indent_size = 4
+
+        [*.md]
+        trim_trailing_whitespace = false
+
+        [Makefile]
+        indent_style = tab
+      '';
+
+      # Curl configuration
+      ".curlrc".text = ''
+        # Follow redirects
+        --location
+
+        # Show error messages
+        --show-error
+
+        # Resume downloads
+        --continue-at -
+
+        # Use compression
+        --compressed
+      '';
+
+      # Wget configuration
+      ".wgetrc".text = ''
+        # Use timestamping
+        timestamping = on
+
+        # Follow FTP links
+        follow_ftp = on
+
+        # Retry a few times
+        tries = 3
+
+        # Wait between requests
+        wait = 2
+      '';
     }
 
     # Linux/Codespaces specific
