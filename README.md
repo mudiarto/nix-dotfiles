@@ -231,20 +231,42 @@ nix run home-manager -- switch --flake .#user@linux
 
 ## Initial Configuration
 
-Before using, customize these settings in `home.nix`:
+### 1. Set Up Your Credentials (Required)
 
-1. **Git configuration**:
-   ```nix
-   git = {
-     userName = "Your Name";      # Change this!
-     userEmail = "your@email.com"; # Change this!
-   };
-   ```
+Your git credentials are loaded from `.envrc.local` (which is gitignored for security):
 
-2. Review and adjust:
-   - Shell aliases
-   - Neovim configuration
-   - Tmux keybindings
+```bash
+# Copy the example file
+cp .envrc.local.example .envrc.local
+
+# Edit .envrc.local and set your credentials
+# Required:
+export GIT_USER_NAME="Your Name"
+export GIT_USER_EMAIL="your@email.com"
+
+# Optional: Add API keys and other secrets
+export GITHUB_TOKEN="ghp_..."
+export OPENAI_API_KEY="sk-..."
+
+# Allow direnv to load the environment
+direnv allow
+
+# Reapply Home Manager with your credentials
+home-manager switch --flake .#<your-config>
+```
+
+**Why use `.envrc.local`?**
+- Keeps secrets out of git (`.envrc.local` is gitignored)
+- Same approach works for API keys, tokens, and other sensitive data
+- Changes apply immediately with `direnv allow`
+
+### 2. Review and Customize
+
+You can also adjust these settings in `home.nix`:
+- Shell aliases
+- Neovim configuration
+- Tmux keybindings
+- Additional packages
 
 ## Usage
 
@@ -400,6 +422,8 @@ These run automatically on pull requests and pushes to main/master.
 ├── cloud/                      # Cloud VM deployment configs
 │   ├── cloud-init.yaml         # Cloud-init configuration
 │   └── setup-vm.sh             # Manual VM setup script
+├── docs/                       # Documentation
+│   └── nix.md                  # Nix beginner's guide
 ├── Dockerfile                  # Docker image for containerized env
 ├── docker-compose.yml          # Docker Compose configuration
 ├── .pre-commit-config.yaml     # Pre-commit hooks
@@ -482,6 +506,30 @@ If you need to uninstall Determinate Nix:
 ```
 
 ## Resources
+
+### In This Repository
+
+- **[Nix Guide for Beginners](docs/nix.md)** - Complete guide covering:
+  - Common Nix operations (update, rollback, install packages)
+  - Adding dependencies and sources
+  - Running services (PostgreSQL, Redis, MySQL)
+  - Custom scripts and packages
+  - Troubleshooting tips
+  - Learning resources
+
+- **[Managing Dotfiles](docs/managing-dotfiles.md)** - Guide to managing configuration files:
+  - Declarative configuration in home.nix (recommended)
+  - External files with symlinks
+  - Best practices and comparison
+  - Migration from traditional dotfiles
+
+- **[Managing Secrets](docs/managing-secrets.md)** - Secret management with direnv:
+  - Storing API keys and credentials securely
+  - Using .envrc for environment-specific secrets
+  - Best practices and security checklist
+  - Alternative solutions (sops-nix, 1Password, pass)
+
+### External Resources
 
 - [Determinate Systems - Nix Installer](https://github.com/DeterminateSystems/nix-installer)
 - [Nix Manual](https://nixos.org/manual/nix/stable/)

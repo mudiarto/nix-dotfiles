@@ -1,0 +1,78 @@
+#cloud-config
+# Cloud-init configuration TEMPLATE for VPC/Cloud VM setup
+#
+# DO NOT use this file directly! Generate cloud-init.yaml from this template:
+#   ./cloud/generate-cloud-init.sh
+#
+# This keeps your SSH keys and credentials out of version control.
+#
+# Usage after generating:
+#   AWS EC2: Pass cloud-init.yaml as user-data when launching instance
+#   GCP: Use cloud-init.yaml as startup script metadata
+#   Azure: Use cloud-init.yaml as custom data
+#   DigitalOcean: Add cloud-init.yaml as user data
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - git
+  - sudo
+  - build-essential
+
+# Create a developer user
+# Username and SSH keys are populated from environment variables
+users:
+  - name: __CLOUD_VM_USERNAME__
+    groups: sudo, docker
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+__SSH_PUBLIC_KEYS__
+
+# Run commands on first boot
+runcmd:
+  # Install Determinate Nix for the user
+  - su - __CLOUD_VM_USERNAME__ -c 'curl --proto "=https" --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --no-confirm'
+
+  # Clone the dotfiles repository
+  - su - __CLOUD_VM_USERNAME__ -c 'git clone __DOTFILES_REPO_URL__ ~/nix-dotfiles'
+
+  # Source Nix environment
+  - su - __CLOUD_VM_USERNAME__ -c 'source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+
+  # Install Home Manager and apply configuration
+  - su - __CLOUD_VM_USERNAME__ -c 'cd ~/nix-dotfiles && /nix/var/nix/profiles/default/bin/nix run home-manager -- switch --flake .#user@linux'
+
+  # Install pre-commit hooks
+  - su - __CLOUD_VM_USERNAME__ -c 'cd ~/nix-dotfiles && /home/__CLOUD_VM_USERNAME__/.nix-profile/bin/pre-commit install'
+
+  # Install Claude Code
+  - su - __CLOUD_VM_USERNAME__ -c '/home/__CLOUD_VM_USERNAME__/.nix-profile/bin/npm install -g @anthropic-ai/claude-code'
+
+# Write configuration files
+write_files:
+  - path: /etc/profile.d/nix.sh
+    content: |
+      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+      fi
+    permissions: '0644'
+
+# Final message
+final_message: |
+  Cloud VM setup complete!
+
+  Nix + Home Manager environment is ready.
+
+  To connect:
+    ssh __CLOUD_VM_USERNAME__@<vm-ip-address>
+
+  The environment includes:
+    - Zsh with customizations
+    - Neovim, Tmux, Git, Docker
+    - Development tools (Node.js, Python, Rust, Go)
+    - Claude Code CLI
+
+  Configuration location: ~/nix-dotfiles

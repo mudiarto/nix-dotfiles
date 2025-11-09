@@ -6,8 +6,16 @@
 
   # Home Manager needs a bit of information about you and the paths it should manage
   home = {
-    username = builtins.getEnv "USER";
-    homeDirectory = builtins.getEnv "HOME";
+    username =
+      let user = builtins.getEnv "USER";
+      in if user != "" then user else "vscode";
+    homeDirectory =
+      let home = builtins.getEnv "HOME";
+          user = builtins.getEnv "USER";
+          finalUser = if user != "" then user else "vscode";
+      in if home != "" then home
+         else if pkgs.stdenv.isDarwin then "/Users/${finalUser}"
+         else "/home/${finalUser}";
 
     # This value determines the Home Manager release that your configuration is
     # compatible with. This helps avoid breakage when a new Home Manager release
@@ -19,7 +27,14 @@
       EDITOR = "nvim";
       VISUAL = "nvim";
       SHELL = "${pkgs.zsh}/bin/zsh";
+      # npm configuration for global packages
+      NPM_CONFIG_PREFIX = "${config.home.homeDirectory}/.npm-global";
     };
+
+    # Add npm global bin to PATH
+    sessionPath = [
+      "${config.home.homeDirectory}/.npm-global/bin"
+    ];
 
     # Packages to install
     packages = with pkgs; [
@@ -60,6 +75,8 @@
       rustc         # Rust compiler
       cargo         # Rust package manager
       go            # Go language
+      mise          # Polyglot runtime manager (asdf alternative)
+      uv            # Fast Python package installer
 
       # Nix tools
       nixpkgs-fmt   # Nix formatter
@@ -105,7 +122,7 @@
         j = "just";
       };
 
-      initExtra = ''
+      initContent = ''
         # Enable vi mode
         bindkey -v
 
@@ -138,20 +155,31 @@
     # Git configuration
     git = {
       enable = true;
-      userName = "Your Name";  # TODO: Customize this
-      userEmail = "your.email@example.com";  # TODO: Customize this
 
-      aliases = {
-        st = "status";
-        co = "checkout";
-        br = "branch";
-        ci = "commit";
-        unstage = "reset HEAD --";
-        last = "log -1 HEAD";
-        lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
-      };
+      settings = {
+        user =
+          # Read from environment variables set in .envrc.local
+          # Set these in .envrc.local:
+          #   export GIT_USER_NAME="Your Name"
+          #   export GIT_USER_EMAIL="your@email.com"
+          let
+            envName = builtins.getEnv "GIT_USER_NAME";
+            envEmail = builtins.getEnv "GIT_USER_EMAIL";
+          in {
+            name = if envName != "" then envName else "CHANGEME";
+            email = if envEmail != "" then envEmail else "changeme@example.com";
+          };
 
-      extraConfig = {
+        alias = {
+          st = "status";
+          co = "checkout";
+          br = "branch";
+          ci = "commit";
+          unstage = "reset HEAD --";
+          last = "log -1 HEAD";
+          lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
+        };
+
         init.defaultBranch = "main";
         pull.rebase = false;
         core.editor = "nvim";
@@ -160,13 +188,41 @@
         push.autoSetupRemote = true;
       };
 
-      delta = {
-        enable = true;
-        options = {
-          navigate = true;
-          line-numbers = true;
-          syntax-theme = "Nord";
-        };
+      # Global gitignore
+      ignores = [
+        # OS files
+        ".DS_Store"
+        "Thumbs.db"
+        "desktop.ini"
+
+        # Editor files
+        ".vscode/"
+        ".idea/"
+        "*.swp"
+        "*.swo"
+        "*~"
+
+        # Temporary files
+        "*.tmp"
+        "*.log"
+        ".env.local"
+
+        # Common build artifacts
+        "node_modules/"
+        ".cache/"
+        "dist/"
+        "build/"
+      ];
+    };
+
+    # Delta (better git diffs)
+    delta = {
+      enable = true;
+      enableGitIntegration = true;
+      options = {
+        navigate = true;
+        line-numbers = true;
+        syntax-theme = "Nord";
       };
     };
 
@@ -301,11 +357,81 @@
     };
   };
 
-  # Platform-specific configurations
+  # Platform-specific configurations and custom dotfiles
   home.file = lib.mkMerge [
     # Common files for all platforms
     {
       ".config/justfile-templates/.keep".text = "";
+
+      # Example: Link external file from dotfiles/ directory
+      # Uncomment to use:
+      # ".custom_aliases".source = ./dotfiles/custom_aliases.sh;
+
+      # Example: Create file with recursive directory
+      # ".config/myapp/config.json".text = ''
+      #   { "setting": "value" }
+      # '';
+
+      # EditorConfig - define coding styles
+      ".editorconfig".text = ''
+        root = true
+
+        [*]
+        charset = utf-8
+        end_of_line = lf
+        insert_final_newline = true
+        trim_trailing_whitespace = true
+
+        [*.{js,jsx,ts,tsx,json,css,scss,yml,yaml}]
+        indent_style = space
+        indent_size = 2
+
+        [*.{py,rs,go}]
+        indent_style = space
+        indent_size = 4
+
+        [*.md]
+        trim_trailing_whitespace = false
+
+        [Makefile]
+        indent_style = tab
+      '';
+
+      # Curl configuration
+      ".curlrc".text = ''
+        # Follow redirects
+        --location
+
+        # Show error messages
+        --show-error
+
+        # Resume downloads
+        --continue-at -
+
+        # Use compression
+        --compressed
+      '';
+
+      # npm configuration - use user-local directory for global packages
+      # This prevents permission issues with Nix's read-only store
+      ".npmrc".text = ''
+        prefix=''${HOME}/.npm-global
+      '';
+
+      # Wget configuration
+      ".wgetrc".text = ''
+        # Use timestamping
+        timestamping = on
+
+        # Follow FTP links
+        follow_ftp = on
+
+        # Retry a few times
+        tries = 3
+
+        # Wait between requests
+        wait = 2
+      '';
     }
 
     # Linux/Codespaces specific

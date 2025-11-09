@@ -37,15 +37,5 @@
   "forwardPorts": [],
 
   // Connect as vscode user (default for debian base image)
-  "remoteUser": "vscode",
-
-  // Mount the workspace
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
-  ],
-
-  "workspaceFolder": "/workspace",
-
-  // Keep container running
-  "overrideCommand": true
+  "remoteUser": "vscode"
 }

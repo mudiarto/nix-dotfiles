@@ -1,0 +1,104 @@
+# Copy this file to .envrc.local and add your secrets
+# cp .envrc.local.example .envrc.local
+#
+# .envrc.local is in .gitignore and safe for secrets
+
+# ============================================================================
+# Git Configuration (required for home-manager)
+# ============================================================================
+
+# Git user configuration - used by home.nix
+export GIT_USER_NAME="Your Name"
+export GIT_USER_EMAIL="your@email.com"
+
+# ============================================================================
+# SSH Configuration (optional)
+# ============================================================================
+
+# If you have SSH keys in a non-standard location, set the path here
+# export SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
+# export SSH_PUBLIC_KEY_PATH="$HOME/.ssh/id_ed25519.pub"
+
+# ============================================================================
+# Cloud VM Configuration (for cloud-init.yaml generation)
+# ============================================================================
+
+# Repository URL for your dotfiles (used in cloud-init.yaml)
+# export DOTFILES_REPO_URL="https://github.com/YOUR_USERNAME/nix-dotfiles.git"
+
+# Username for cloud VMs (defaults to 'developer' if not set)
+# export CLOUD_VM_USERNAME="developer"
+
+# SSH public keys for cloud VMs - Option 1: Direct key content
+# You can provide one key or multiple keys separated by commas or newlines
+# export SSH_PUBLIC_KEYS="ssh-ed25519 AAAAC3... user@host"
+
+# SSH public keys for cloud VMs - Option 2: Paths to public key files
+# export SSH_PUBLIC_KEY_PATH_1="$HOME/.ssh/id_ed25519.pub"
+# export SSH_PUBLIC_KEY_PATH_2="$HOME/.ssh/id_rsa.pub"
+
+# Generate cloud-init.yaml with:
+#   ./cloud/generate-cloud-init.sh
+
+# ============================================================================
+# Global Secrets (used across all projects)
+# ============================================================================
+
+# GitHub
+export GITHUB_TOKEN="ghp_your_token_here"
+
+# OpenAI / Anthropic
+# export OPENAI_API_KEY="sk-..."
+# export ANTHROPIC_API_KEY="sk-ant-..."
+
+# AWS Credentials
+# export AWS_ACCESS_KEY_ID="AKIA..."
+# export AWS_SECRET_ACCESS_KEY="..."
+# export AWS_DEFAULT_REGION="us-east-1"
+
+# NPM / Node.js
+# export NPM_TOKEN="npm_..."
+
+# Docker Hub
+# export DOCKER_USERNAME="username"
+# export DOCKER_PASSWORD="password"
+
+# ============================================================================
+# Database URLs
+# ============================================================================
+
+# PostgreSQL
+# export DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+
+# Redis
+# export REDIS_URL="redis://localhost:6379"
+
+# MongoDB
+# export MONGODB_URI="mongodb://localhost:27017/dbname"
+
+# ============================================================================
+# API Keys for common services
+# ============================================================================
+
+# Stripe
+# export STRIPE_SECRET_KEY="sk_test_..."
+# export STRIPE_PUBLISHABLE_KEY="pk_test_..."
+
+# SendGrid
+# export SENDGRID_API_KEY="SG...."
+
+# Twilio
+# export TWILIO_ACCOUNT_SID="AC..."
+# export TWILIO_AUTH_TOKEN="..."
+
+# Slack
+# export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
+# export SLACK_BOT_TOKEN="xoxb-..."
+
+# ============================================================================
+# Development Settings
+# ============================================================================
+
+# Uncomment and customize as needed
+# export LOG_LEVEL="debug"
+# export DEBUG="true"
