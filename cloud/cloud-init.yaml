@@ -24,8 +24,10 @@ users:
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     ssh_authorized_keys:
-      # Add your SSH public key here
-      - ssh-rsa AAAAB3NzaC1yc2E... your-key-here
+      # 20221016_mudiarto_at_gmail_com
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHScoFkT9GWb4Ga8wwxrr6E3zxEemEAHXc0y/QRklTTD
+      # 20221019_kusno_mudiarto_at_coupa_com
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC5BM/VAQsSQyTUe4Ez/v6IO+x8wplUSmzX+25B8+6Vf
 
 # Run commands on first boot
 runcmd:

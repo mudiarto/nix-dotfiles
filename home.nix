@@ -138,8 +138,8 @@
     # Git configuration
     git = {
       enable = true;
-      userName = "Your Name";  # TODO: Customize this
-      userEmail = "your.email@example.com";  # TODO: Customize this
+      userName = "Kusno Mudiarto";  # TODO: Customize this
+      userEmail = "kusno@mudiarto.com";  # TODO: Customize this
 
       aliases = {
         st = "status";
