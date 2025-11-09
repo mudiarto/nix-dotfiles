@@ -115,7 +115,7 @@
         j = "just";
       };
 
-      initExtra = ''
+      initContent = ''
         # Enable vi mode
         bindkey -v
 
@@ -148,35 +148,29 @@
     # Git configuration
     git = {
       enable = true;
-      userName = "Kusno Mudiarto";  # TODO: Customize this
-      userEmail = "kusno@mudiarto.com";  # TODO: Customize this
 
-      aliases = {
-        st = "status";
-        co = "checkout";
-        br = "branch";
-        ci = "commit";
-        unstage = "reset HEAD --";
-        last = "log -1 HEAD";
-        lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
-      };
+      settings = {
+        user = {
+          name = "Kusno Mudiarto";  # TODO: Customize this
+          email = "kusno@mudiarto.com";  # TODO: Customize this
+        };
 
-      extraConfig = {
+        alias = {
+          st = "status";
+          co = "checkout";
+          br = "branch";
+          ci = "commit";
+          unstage = "reset HEAD --";
+          last = "log -1 HEAD";
+          lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit";
+        };
+
         init.defaultBranch = "main";
         pull.rebase = false;
         core.editor = "nvim";
         diff.tool = "nvimdiff";
         merge.tool = "nvimdiff";
         push.autoSetupRemote = true;
-      };
-
-      delta = {
-        enable = true;
-        options = {
-          navigate = true;
-          line-numbers = true;
-          syntax-theme = "Nord";
-        };
       };
 
       # Global gitignore
@@ -204,6 +198,17 @@
         "dist/"
         "build/"
       ];
+    };
+
+    # Delta (better git diffs)
+    delta = {
+      enable = true;
+      enableGitIntegration = true;
+      options = {
+        navigate = true;
+        line-numbers = true;
+        syntax-theme = "Nord";
+      };
     };
 
     # Neovim
