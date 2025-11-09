@@ -7,15 +7,31 @@ echo "🚀 Setting up Nix + Home Manager environment..."
 # Install Determinate Nix if not already installed
 if ! command -v nix &> /dev/null; then
     echo "📦 Installing Determinate Nix..."
-    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
-        --no-confirm
 
-    # Start the Nix daemon
+    # Check if systemd is running
+    if systemctl is-system-running &> /dev/null || [ -d /run/systemd/system ]; then
+        echo "  Using systemd for daemon management"
+        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
+            --no-confirm
+    else
+        echo "  systemd not active, installing without daemon auto-start"
+        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux \
+            --no-confirm \
+            --no-start-daemon
+    fi
+
+    # Start the Nix daemon if systemd is available
     echo "🔧 Starting Nix daemon..."
-    if command -v systemctl &> /dev/null; then
+    if command -v systemctl &> /dev/null && systemctl is-system-running &> /dev/null; then
         sudo systemctl start nix-daemon.service || true
         # Wait for daemon to be ready
         sleep 2
+    else
+        # Try to start daemon manually if systemd isn't available
+        if [ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+            sudo /nix/var/nix/profiles/default/bin/nix-daemon &
+            sleep 2
+        fi
     fi
 
     # Source the nix environment for current session
@@ -27,7 +43,7 @@ if ! command -v nix &> /dev/null; then
 else
     echo "✓ Nix is already installed"
     # Make sure daemon is running
-    if command -v systemctl &> /dev/null; then
+    if command -v systemctl &> /dev/null && systemctl is-system-running &> /dev/null; then
         sudo systemctl start nix-daemon.service || true
     fi
     # Source the environment
