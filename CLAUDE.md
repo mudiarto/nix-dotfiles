@@ -29,6 +29,8 @@ This is a dotfiles repository that manages:
 ├── cloud/                     # Cloud VM deployment configs
 │   ├── cloud-init.yaml        # Cloud-init configuration
 │   └── setup-vm.sh            # Manual VM setup script
+├── docs/                      # Documentation
+│   └── nix.md                 # Nix beginner's guide
 ├── Dockerfile                 # Docker image for containerized env
 ├── docker-compose.yml         # Docker Compose configuration
 ├── .pre-commit-config.yaml    # Pre-commit hooks for security
@@ -251,6 +253,15 @@ pre-commit clean
 ```
 
 ## Getting Help
+
+### Documentation in This Repo
+
+- **docs/nix.md**: Comprehensive beginner's guide to Nix operations
+  - Installing packages, services, custom scripts
+  - Troubleshooting common issues
+  - Learning resources
+
+### External Resources
 
 - Determinate Nix: https://github.com/DeterminateSystems/nix-installer
 - Nix documentation: https://nixos.org/manual/nix/stable/

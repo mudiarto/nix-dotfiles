@@ -400,6 +400,8 @@ These run automatically on pull requests and pushes to main/master.
 ├── cloud/                      # Cloud VM deployment configs
 │   ├── cloud-init.yaml         # Cloud-init configuration
 │   └── setup-vm.sh             # Manual VM setup script
+├── docs/                       # Documentation
+│   └── nix.md                  # Nix beginner's guide
 ├── Dockerfile                  # Docker image for containerized env
 ├── docker-compose.yml          # Docker Compose configuration
 ├── .pre-commit-config.yaml     # Pre-commit hooks
@@ -482,6 +484,18 @@ If you need to uninstall Determinate Nix:
 ```
 
 ## Resources
+
+### In This Repository
+
+- **[Nix Guide for Beginners](docs/nix.md)** - Complete guide covering:
+  - Common Nix operations (update, rollback, install packages)
+  - Adding dependencies and sources
+  - Running services (PostgreSQL, Redis, MySQL)
+  - Custom scripts and packages
+  - Troubleshooting tips
+  - Learning resources
+
+### External Resources
 
 - [Determinate Systems - Nix Installer](https://github.com/DeterminateSystems/nix-installer)
 - [Nix Manual](https://nixos.org/manual/nix/stable/)
