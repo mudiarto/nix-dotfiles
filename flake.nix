@@ -62,9 +62,10 @@
         {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
-              home-manager
               git
               pre-commit
+              nixpkgs-fmt
+              shellcheck
             ];
 
             shellHook = ''

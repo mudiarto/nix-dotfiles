@@ -46,8 +46,28 @@ validate-nix:
     @echo "✓ Flake validation passed"
 
 # Validate all Home Manager configurations (build without activating)
+# Only validates configurations compatible with the current system
 validate-configs:
     @echo "🔍 Validating Home Manager configurations..."
+    @if [ "$(uname -s)" = "Darwin" ]; then \
+        echo "  Detected macOS, validating Darwin configurations..."; \
+        if [ "$(uname -m)" = "x86_64" ]; then \
+            echo "  Checking user@darwin-x86..."; \
+            nix build --no-link .#homeConfigurations.\"user@darwin-x86\".activationPackage; \
+        else \
+            echo "  Checking user@darwin-arm..."; \
+            nix build --no-link .#homeConfigurations.\"user@darwin-arm\".activationPackage; \
+        fi; \
+    else \
+        echo "  Detected Linux, validating Linux configuration..."; \
+        echo "  Checking user@linux..."; \
+        nix build --no-link .#homeConfigurations.\"user@linux\".activationPackage; \
+    fi
+    @echo "✓ Compatible configurations validated"
+
+# Validate ALL configurations (requires remote builders for cross-platform)
+validate-all-configs:
+    @echo "🔍 Validating ALL Home Manager configurations..."
     @echo "  Checking user@linux..."
     @nix build --no-link .#homeConfigurations.\"user@linux\".activationPackage
     @echo "  Checking user@darwin-x86..."
@@ -59,8 +79,13 @@ validate-configs:
 # Validate Nix syntax and formatting
 validate-syntax:
     @echo "🔍 Checking Nix syntax and formatting..."
-    @nixpkgs-fmt --check *.nix || (echo "❌ Run 'just format' to fix formatting" && exit 1)
-    @echo "✓ Syntax validation passed"
+    @if command -v nixpkgs-fmt > /dev/null; then \
+        nixpkgs-fmt --check *.nix || (echo "❌ Run 'just format' to fix formatting" && exit 1); \
+        echo "✓ Syntax validation passed"; \
+    else \
+        echo "⚠️  nixpkgs-fmt not found, skipping formatting check"; \
+        echo "   Run 'nix develop' or install nixpkgs-fmt to enable this check"; \
+    fi
 
 # Validate YAML files (cloud-init, docker-compose, pre-commit)
 validate-yaml:
