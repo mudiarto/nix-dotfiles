@@ -27,7 +27,7 @@ nix run home-manager/master -- init --switch
 
 # Apply our configuration
 echo "⚙️  Applying Home Manager configuration..."
-cd /workspace
+# Note: postCreateCommand runs from the workspace directory by default
 home-manager switch --flake .#user@linux
 
 # Install Claude Code via npm (if not available in nixpkgs)
