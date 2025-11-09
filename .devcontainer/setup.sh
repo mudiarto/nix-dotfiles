@@ -76,19 +76,16 @@ if ! timeout 10 nix --version &> /dev/null; then
 fi
 echo "✓ Nix $(nix --version) is ready"
 
-# Install Home Manager
-echo "🏠 Installing Home Manager..."
-nix run home-manager/master -- init --switch
-
-# Apply our configuration
-echo "⚙️  Applying Home Manager configuration..."
-# Note: postCreateCommand runs from the workspace directory by default
-home-manager switch --flake .#user@linux
+# Apply Home Manager configuration directly
+echo "🏠 Setting up Home Manager..."
+# Note: We use nix run instead of home-manager init to avoid conflicts
+# The flake configuration will handle the installation
+nix run home-manager/master -- switch --flake .#user@linux -b backup
 
 # Install Claude Code via npm (if not available in nixpkgs)
 echo "🤖 Installing Claude Code..."
 if command -v npm &> /dev/null; then
-    npm install -g @anthropic-ai/claude-code
+    npm install -g @anthropic-ai/claude-code || echo "⚠️  Claude Code installation failed, you can install it later"
 else
     echo "⚠️  npm not found, Claude Code installation skipped"
     echo "   You can install it manually later with: npm install -g @anthropic-ai/claude-code"
@@ -97,13 +94,9 @@ fi
 # Set up pre-commit hooks
 echo "🔒 Setting up pre-commit hooks..."
 if command -v pre-commit &> /dev/null; then
-    pre-commit install
-fi
-
-# Change default shell to zsh
-echo "🐚 Setting up zsh..."
-if [ -f ~/.nix-profile/bin/zsh ]; then
-    echo "Zsh installed successfully"
+    pre-commit install || echo "⚠️  Pre-commit hook installation failed, you can set it up later with: pre-commit install"
+else
+    echo "⚠️  pre-commit not found yet, will be available after restarting shell"
 fi
 
 # Ensure Nix is available in future shells

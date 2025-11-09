@@ -6,8 +6,16 @@
 
   # Home Manager needs a bit of information about you and the paths it should manage
   home = {
-    username = builtins.getEnv "USER";
-    homeDirectory = builtins.getEnv "HOME";
+    username =
+      let user = builtins.getEnv "USER";
+      in if user != "" then user else "vscode";
+    homeDirectory =
+      let home = builtins.getEnv "HOME";
+          user = builtins.getEnv "USER";
+          finalUser = if user != "" then user else "vscode";
+      in if home != "" then home
+         else if pkgs.stdenv.isDarwin then "/Users/${finalUser}"
+         else "/home/${finalUser}";
 
     # This value determines the Home Manager release that your configuration is
     # compatible with. This helps avoid breakage when a new Home Manager release
