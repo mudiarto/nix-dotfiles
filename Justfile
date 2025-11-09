@@ -33,6 +33,65 @@ check:
 show:
     nix flake show
 
+# Validation and Testing
+
+# Run all validation checks
+validate: validate-nix validate-configs validate-syntax
+    @echo "✅ All validations passed!"
+
+# Validate Nix flake structure
+validate-nix:
+    @echo "🔍 Validating Nix flake..."
+    nix flake check --show-trace
+    @echo "✓ Flake validation passed"
+
+# Validate all Home Manager configurations (build without activating)
+validate-configs:
+    @echo "🔍 Validating Home Manager configurations..."
+    @echo "  Checking user@linux..."
+    @nix build --no-link .#homeConfigurations.\"user@linux\".activationPackage
+    @echo "  Checking user@darwin-x86..."
+    @nix build --no-link .#homeConfigurations.\"user@darwin-x86\".activationPackage
+    @echo "  Checking user@darwin-arm..."
+    @nix build --no-link .#homeConfigurations.\"user@darwin-arm\".activationPackage
+    @echo "✓ All configurations validated"
+
+# Validate Nix syntax and formatting
+validate-syntax:
+    @echo "🔍 Checking Nix syntax and formatting..."
+    @nixpkgs-fmt --check *.nix || (echo "❌ Run 'just format' to fix formatting" && exit 1)
+    @echo "✓ Syntax validation passed"
+
+# Validate YAML files (cloud-init, docker-compose, pre-commit)
+validate-yaml:
+    @echo "🔍 Validating YAML files..."
+    @if command -v yamllint > /dev/null; then \
+        yamllint -c .yamllint cloud/cloud-init.yaml docker-compose.yml .pre-commit-config.yaml || true; \
+    else \
+        echo "⚠️  yamllint not found, skipping YAML validation"; \
+    fi
+
+# Validate shell scripts
+validate-scripts:
+    @echo "🔍 Validating shell scripts..."
+    @if command -v shellcheck > /dev/null; then \
+        shellcheck .devcontainer/setup.sh cloud/setup-vm.sh; \
+        echo "✓ Shell script validation passed"; \
+    else \
+        echo "⚠️  shellcheck not found, skipping script validation"; \
+    fi
+
+# Test build for specific configuration
+test-config CONFIG:
+    @echo "🧪 Testing configuration: {{CONFIG}}"
+    @nix build --no-link .#homeConfigurations.\"{{CONFIG}}\".activationPackage
+    @echo "✓ Configuration {{CONFIG}} builds successfully"
+
+# Dry-run Home Manager switch (show what would change)
+dry-run CONFIG="user@linux":
+    @echo "🔍 Dry-run for {{CONFIG}}..."
+    home-manager build --flake .#{{CONFIG}} --dry-run
+
 # Format Nix files
 format:
     nixpkgs-fmt *.nix

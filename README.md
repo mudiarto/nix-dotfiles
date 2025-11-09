@@ -322,6 +322,71 @@ home-manager generations
 /nix/store/<hash>-home-manager-generation/activate
 ```
 
+## Testing and Validation
+
+Before deploying changes, you can validate your Nix configurations:
+
+### Quick Validation
+
+```bash
+# Validate everything
+just validate
+
+# Or individually:
+just validate-nix      # Check flake structure
+just validate-configs  # Build all configurations
+just validate-syntax   # Check Nix formatting
+```
+
+### Detailed Testing
+
+```bash
+# Check flake structure
+nix flake check
+
+# Build a specific configuration without activating
+nix build .#homeConfigurations."user@linux".activationPackage
+
+# Dry-run to see what would change
+just dry-run user@linux
+
+# Test a specific configuration
+just test-config "user@darwin-arm"
+```
+
+### Format Checking
+
+```bash
+# Check Nix file formatting
+nixpkgs-fmt --check *.nix
+
+# Auto-format Nix files
+just format
+```
+
+### Validate Scripts
+
+```bash
+# Validate shell scripts
+just validate-scripts
+
+# Validate YAML files
+just validate-yaml
+```
+
+### Continuous Integration
+
+The repository includes GitHub Actions workflows that automatically:
+- ✅ Validate Nix flake structure
+- ✅ Build all Home Manager configurations
+- ✅ Check Nix formatting
+- ✅ Validate shell scripts with shellcheck
+- ✅ Validate YAML files
+- ✅ Test Docker builds
+- ✅ Run security checks (pre-commit hooks)
+
+These run automatically on pull requests and pushes to main/master.
+
 ## Project Structure
 
 ```

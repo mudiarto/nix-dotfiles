@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  validate-nix:
+    name: Validate Nix Configurations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Determinate Nix
+        uses: DeterminateSystems/nix-installer-action@v9
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v3
+
+      - name: Check flake
+        run: nix flake check --show-trace
+
+      - name: Show flake info
+        run: nix flake show
+
+      - name: Validate Linux configuration
+        run: |
+          echo "Building user@linux configuration..."
+          nix build --no-link .#homeConfigurations."user@linux".activationPackage
+
+      - name: Validate macOS Intel configuration
+        run: |
+          echo "Building user@darwin-x86 configuration..."
+          nix build --no-link .#homeConfigurations."user@darwin-x86".activationPackage
+
+      - name: Validate macOS ARM configuration
+        run: |
+          echo "Building user@darwin-arm configuration..."
+          nix build --no-link .#homeConfigurations."user@darwin-arm".activationPackage
+
+      - name: Check Nix formatting
+        run: |
+          nix develop --command nixpkgs-fmt --check *.nix
+
+  validate-scripts:
+    name: Validate Scripts and YAML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Validate shell scripts
+        run: |
+          shellcheck .devcontainer/setup.sh
+          shellcheck cloud/setup-vm.sh
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Validate YAML files
+        run: |
+          yamllint cloud/cloud-init.yaml
+          yamllint docker-compose.yml
+          yamllint .pre-commit-config.yaml
+
+  test-docker:
+    name: Test Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: nix-dotfiles:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  security-scan:
+    name: Security Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.0

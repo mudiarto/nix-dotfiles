@@ -116,6 +116,83 @@ home-manager switch --flake .#<config>
 4. Push changes to repository
 5. Other machines can pull and apply: `home-manager switch --flake .#<config>`
 
+## Testing and Validation
+
+### Quick Validation Commands
+
+```bash
+# Validate all configurations
+just validate
+
+# Individual checks
+just validate-nix      # Check flake structure
+just validate-configs  # Build all Home Manager configs
+just validate-syntax   # Check Nix formatting
+just validate-scripts  # Validate shell scripts
+just validate-yaml     # Validate YAML files
+```
+
+### Before Committing
+
+Always run these checks before committing changes:
+
+```bash
+# Validate Nix configurations
+nix flake check --show-trace
+
+# Build without activating to test
+nix build .#homeConfigurations."user@linux".activationPackage
+
+# Check formatting
+nixpkgs-fmt --check *.nix
+
+# Run pre-commit hooks manually
+pre-commit run --all-files
+```
+
+### Testing Specific Configurations
+
+```bash
+# Test a specific config
+just test-config "user@darwin-arm"
+
+# Dry-run to see what would change
+just dry-run user@linux
+
+# Build without linking (doesn't pollute working directory)
+nix build --no-link .#homeConfigurations."user@darwin-x86".activationPackage
+```
+
+### CI/CD
+
+The repository includes GitHub Actions workflows (`.github/workflows/ci.yml`) that:
+- Validate all Nix flake configurations
+- Build all Home Manager configurations (Linux, macOS Intel, macOS ARM)
+- Check Nix formatting
+- Validate shell scripts with shellcheck
+- Validate YAML files with yamllint
+- Test Docker builds
+- Run security scans (pre-commit hooks)
+
+These checks run automatically on:
+- Pull requests to main/master
+- Pushes to main/master
+- Manual workflow dispatch
+
+### Local Testing
+
+```bash
+# Test Docker build locally
+just docker-build
+
+# Test in isolated Docker environment
+just docker-up
+just docker-shell
+# Make changes and test inside container
+exit
+just docker-down
+```
+
 ## Important Notes
 
 ### Secret Management
@@ -184,15 +261,17 @@ pre-commit clean
 
 When working on this repository:
 
-1. **Always test changes**: Use `nix flake check` before committing
-2. **Platform awareness**: Consider both Linux and macOS when making changes
-3. **Security first**: Never suggest committing secrets or bypassing pre-commit hooks
-4. **Documentation**: Update this file and README.md when making significant changes
-5. **Incremental changes**: Test one change at a time, especially for complex configurations
-6. **Use Nix search**: Search for packages at https://search.nixos.org/packages
-7. **Check compatibility**: Some packages may not work on all platforms
-8. **Docker testing**: Use `just docker-build` and `just docker-up` to test changes in isolation
-9. **Cloud deployment**: Remember to update cloud/cloud-init.yaml when making significant changes
+1. **Always validate changes**: Run `just validate` before committing to catch issues early
+2. **Test all platforms**: Use `just validate-configs` to build Linux and macOS configurations
+3. **Platform awareness**: Consider both Linux and macOS when making changes
+4. **Security first**: Never suggest committing secrets or bypassing pre-commit hooks
+5. **Documentation**: Update this file and README.md when making significant changes
+6. **Incremental changes**: Test one change at a time, especially for complex configurations
+7. **Use Nix search**: Search for packages at https://search.nixos.org/packages
+8. **Check compatibility**: Some packages may not work on all platforms
+9. **Docker testing**: Use `just docker-build` and `just docker-up` to test changes in isolation
+10. **Cloud deployment**: Remember to update cloud/cloud-init.yaml when making significant changes
+11. **CI integration**: Check GitHub Actions workflows after pushing changes
 
 ### Working with Docker
 - Test Dockerfile builds after modifying dependencies
