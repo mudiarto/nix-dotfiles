@@ -12,8 +12,11 @@ result-*
 *.pfx
 *.secret
 *.env
+.env
 .env.local
 .env.*.local
+.envrc.local
+.envrc.secret
 secrets/
 credentials/
 *.credentials
