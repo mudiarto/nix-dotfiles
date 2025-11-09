@@ -45,6 +45,7 @@ secring.*
 gcloud/
 .azure/
 .kube/config
+cloud/cloud-init.yaml  # Generated from template, contains SSH keys
 
 # Password files
 .password
