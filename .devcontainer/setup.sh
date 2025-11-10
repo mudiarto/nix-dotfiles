@@ -91,10 +91,10 @@ if command -v npm &> /dev/null; then
     # Fix ownership of npm files if they exist and are owned by root
     if [ -d ~/.npm ]; then
         echo "  Fixing npm cache ownership..."
-        sudo chown -R $(id -u):$(id -g) ~/.npm || true
+        sudo chown -R "$(id -u)":"$(id -g)" ~/.npm || true
     fi
     if [ -f ~/.npmrc ]; then
-        sudo chown $(id -u):$(id -g) ~/.npmrc || true
+        sudo chown "$(id -u)":"$(id -g)" ~/.npmrc || true
     fi
 
     mkdir -p ~/.npm-global

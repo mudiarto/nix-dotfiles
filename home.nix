@@ -10,12 +10,14 @@
       let user = builtins.getEnv "USER";
       in if user != "" then user else "vscode";
     homeDirectory =
-      let home = builtins.getEnv "HOME";
-          user = builtins.getEnv "USER";
-          finalUser = if user != "" then user else "vscode";
-      in if home != "" then home
-         else if pkgs.stdenv.isDarwin then "/Users/${finalUser}"
-         else "/home/${finalUser}";
+      let
+        home = builtins.getEnv "HOME";
+        user = builtins.getEnv "USER";
+        finalUser = if user != "" then user else "vscode";
+      in
+      if home != "" then home
+      else if pkgs.stdenv.isDarwin then "/Users/${finalUser}"
+      else "/home/${finalUser}";
 
     # This value determines the Home Manager release that your configuration is
     # compatible with. This helps avoid breakage when a new Home Manager release
@@ -39,25 +41,25 @@
     # Packages to install
     packages = with pkgs; [
       # Core development tools
-      just          # Command runner
-      jq            # JSON processor
-      yq            # YAML processor
-      ripgrep       # Fast grep alternative
-      fd            # Fast find alternative
-      fzf           # Fuzzy finder
-      bat           # Better cat
-      eza           # Better ls
-      delta         # Better git diff
-      direnv        # Environment switcher
+      just # Command runner
+      jq # JSON processor
+      yq # YAML processor
+      ripgrep # Fast grep alternative
+      fd # Fast find alternative
+      fzf # Fuzzy finder
+      bat # Better cat
+      eza # Better ls
+      delta # Better git diff
+      direnv # Environment switcher
 
       # Cloud and container tools
       docker-compose
       kubectl
 
       # Development utilities
-      gh            # GitHub CLI
-      lazygit       # Terminal UI for git
-      tree          # Directory tree viewer
+      gh # GitHub CLI
+      lazygit # Terminal UI for git
+      tree # Directory tree viewer
       wget
       curl
       unzip
@@ -65,22 +67,23 @@
       gawk
 
       # Security tools
-      pre-commit    # Git pre-commit hooks
-      gitleaks      # Secret detection
-      git-secrets   # Prevent committing secrets
+      pre-commit # Git pre-commit hooks
+      gitleaks # Secret detection
+      git-secrets # Prevent committing secrets
+      detect-secrets # Yelp's secret detection tool
 
       # Language tools and package managers
-      nodejs        # Node.js
-      python3       # Python
-      rustc         # Rust compiler
-      cargo         # Rust package manager
-      go            # Go language
-      mise          # Polyglot runtime manager (asdf alternative)
-      uv            # Fast Python package installer
+      nodejs # Node.js
+      python3 # Python
+      rustc # Rust compiler
+      cargo # Rust package manager
+      go # Go language
+      mise # Polyglot runtime manager (asdf alternative)
+      uv # Fast Python package installer
 
       # Nix tools
-      nixpkgs-fmt   # Nix formatter
-      nil           # Nix language server
+      nixpkgs-fmt # Nix formatter
+      nil # Nix language server
     ];
   };
 
@@ -165,7 +168,8 @@
           let
             envName = builtins.getEnv "GIT_USER_NAME";
             envEmail = builtins.getEnv "GIT_USER_EMAIL";
-          in {
+          in
+          {
             name = if envName != "" then envName else "CHANGEME";
             email = if envEmail != "" then envEmail else "changeme@example.com";
           };
@@ -284,7 +288,7 @@
       enable = true;
       terminal = "screen-256color";
       keyMode = "vi";
-      shortcut = "a";  # Ctrl-a prefix
+      shortcut = "a"; # Ctrl-a prefix
       baseIndex = 1;
       escapeTime = 0;
 

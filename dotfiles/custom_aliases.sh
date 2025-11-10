@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Example external dotfile
 # This file can be symlinked from home.nix using home.file
 
@@ -7,5 +8,5 @@ alias dockerclean='docker system prune -af'
 
 # Add custom functions
 mkcd() {
-  mkdir -p "$1" && cd "$1"
+  mkdir -p "$1" && cd "$1" || return
 }

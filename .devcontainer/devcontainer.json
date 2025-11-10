@@ -1,23 +1,14 @@
 {
   "name": "Nix Development Environment",
   "image": "mcr.microsoft.com/devcontainers/base:debian",
-
-  // Features to install
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/node:1": {}
   },
-
-  // Container environment variables
-  // Note: Determinate Nix configures flakes automatically, no need for NIX_CONFIG
   "containerEnv": {},
-
-  // Run commands after container is created
   "postCreateCommand": ".devcontainer/setup.sh",
-
-  // Configure tool-specific properties
   "customizations": {
     "vscode": {
       "extensions": [
@@ -32,10 +23,6 @@
       }
     }
   },
-
-  // Use 'forwardPorts' to make a list of ports inside the container available locally
   "forwardPorts": [],
-
-  // Connect as vscode user (default for debian base image)
   "remoteUser": "vscode"
 }
